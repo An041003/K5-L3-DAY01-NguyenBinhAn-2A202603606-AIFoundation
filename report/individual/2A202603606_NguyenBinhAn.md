@@ -114,7 +114,6 @@ AI được sử dụng để hỗ trợ thiết lập môi trường, thao tác
 | Phần | Yêu cầu với AI | AI hỗ trợ gì | Kết quả |
 | --- | --- | --- | --- |
 | GitHub và môi trường | Đẩy dự án lên GitHub, kiểm tra khả năng chạy trên máy và cài thư viện | Thiết lập repo, `.venv`, Jupyter và các thư viện cần thiết | Môi trường được kiểm tra bằng dữ liệu SMS và model MiniLM |
-| Hiển thị notebook | Vì sao file notebook không hiện thành từng cell | Kiểm tra định dạng và cấu hình Notebook Editor trong VS Code | Có cấu hình mở file `.ipynb` bằng Notebook Editor |
 | Chuẩn bị bài nộp | Đổi tên dự án và sắp xếp các file kết quả Colab theo hướng dẫn | Đổi tên, di chuyển file, tổng hợp số liệu và câu trả lời có sẵn | Notebook và JSON giữ nguyên nội dung cùng output |
 | Trình bày báo cáo | Viết lại báo cáo theo văn phong báo cáo cá nhân | Chỉnh văn phong trực tiếp, lược bỏ đại từ xưng hô và sắp xếp lại nội dung | Báo cáo sử dụng số liệu thực nghiệm và phần giải thích trong notebook |
 
