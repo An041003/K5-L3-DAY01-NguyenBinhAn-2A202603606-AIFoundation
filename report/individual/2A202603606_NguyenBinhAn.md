@@ -107,6 +107,8 @@ Cách này cho phép MLP xử lý phần lớn tin nhắn với tốc độ cao,
 
 ## 7. AI log và điều đã học
 
+### 7.1. AI log
+
 AI được sử dụng để hỗ trợ thiết lập môi trường, thao tác GitHub và trình bày báo cáo từ các kết quả đã chạy trên Colab.
 
 | Phần | Yêu cầu với AI | AI hỗ trợ gì | Kết quả |
@@ -115,5 +117,7 @@ AI được sử dụng để hỗ trợ thiết lập môi trường, thao tác
 | Hiển thị notebook | Vì sao file notebook không hiện thành từng cell | Kiểm tra định dạng và cấu hình Notebook Editor trong VS Code | Có cấu hình mở file `.ipynb` bằng Notebook Editor |
 | Chuẩn bị bài nộp | Đổi tên dự án và sắp xếp các file kết quả Colab theo hướng dẫn | Đổi tên, di chuyển file, tổng hợp số liệu và câu trả lời có sẵn | Notebook và JSON giữ nguyên nội dung cùng output |
 | Trình bày báo cáo | Viết lại báo cáo theo văn phong báo cáo cá nhân | Chỉnh văn phong trực tiếp, lược bỏ đại từ xưng hô và sắp xếp lại nội dung | Báo cáo sử dụng số liệu thực nghiệm và phần giải thích trong notebook |
+
+### 7.2. Điều đã học
 
 Điều bất ngờ nhất là `lr = 50` vẫn hội tụ sau giai đoạn mất ổn định, và LLM nhỏ đạt F1 ngang model lớn trên tập SUB. Qua bài lab, có thể thấy mô hình phức tạp hơn chưa chắc phù hợp hơn. Việc lựa chọn phương pháp cần dựa vào cả chất lượng, tốc độ, chi phí và khả năng xử lý những trường hợp khó.
