@@ -7,10 +7,11 @@
 
 ## 1. Bằng chứng
 
-Bài lab được thực hiện trên Colab. Notebook và kết quả chạy được lưu trong hai file:
+Bài lab được thực hiện trên Colab. Các tệp minh chứng gồm:
 
 - [day01_lab.ipynb](day01_lab.ipynb): code, câu trả lời, biểu đồ và output của các thí nghiệm.
 - [lab1_report.json](lab1_report.json): SEED, kết quả kiểm tra, các dự đoán và bảng số liệu tổng hợp.
+- [hand_calc.jpg](hand_calc.jpg): ảnh các bước tính tay cho năm bài tính trong lab.
 
 ## 2. Kết quả chính
 

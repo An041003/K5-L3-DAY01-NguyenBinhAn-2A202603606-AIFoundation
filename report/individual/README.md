@@ -5,7 +5,7 @@
 - [x] Notebook Colab có output: [day01_lab.ipynb](day01_lab.ipynb).
 - [x] JSON Colab: [lab1_report.json](lab1_report.json), SEED 9163, kiểm tra 15/15, đủ 10 dự đoán.
 - [x] Báo cáo đã đổi tên từ file mẫu, tổng hợp bằng chứng có sẵn và AI log của phiên hỗ trợ này.
-- [ ] Bổ sung ảnh viết tay `hand_calc.jpg` (người học xác nhận chưa có).
+- [x] Ảnh viết tay có các bước tính: [hand_calc.jpg](hand_calc.jpg).
 - [ ] Rà soát bằng chứng 50 case gốc / 10 case bonus và phần giải thích còn dùng số cũ.
 - [ ] Đối chiếu ước tính chi phí tháng với JSON và hoàn thiện AI log nếu có lần dùng AI khác.
 - [ ] Rà soát dự đoán `llm_models` đã được chạy lại sau một số thí nghiệm.
