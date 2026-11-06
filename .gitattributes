@@ -1,0 +1,3 @@
+# Preserve the original Colab export bytes on Windows and other platforms.
+report/individual/day01_lab.ipynb -text
+report/individual/lab1_report.json -text

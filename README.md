@@ -1,3 +1,9 @@
+> **Repository bài làm:** [K5-L3a-DAY01-NguyenBinhAn-2A202603606-AIFoundation-Lab](https://github.com/An041003/K5-L3a-DAY01-NguyenBinhAn-2A202603606-AIFoundation-Lab)
+>
+> **Hồ sơ chuẩn bị nộp:** [báo cáo](report/individual/2A202603606_NguyenBinhAn.md) · [notebook Colab đã chạy](report/individual/day01_lab.ipynb) · [kết quả JSON](report/individual/lab1_report.json).
+>
+> **Chưa hoàn tất:** thiếu ảnh tính tay; xem [checklist và điểm cần rà soát](report/individual/README.md). Chưa nộp link trên LMS.
+
 # Bài thực hành Ngày 1 — Một bài toán, bốn thế hệ AI: Lọc tin nhắn rác (Spam / Ham)
 
 > **Hình thức: CÁ NHÂN** · **Thời lượng:** 2h30 trên Google Colab · **Deadline:** 23h59 (GMT+7) ngày lab, trừ khi coach thông báo khác
