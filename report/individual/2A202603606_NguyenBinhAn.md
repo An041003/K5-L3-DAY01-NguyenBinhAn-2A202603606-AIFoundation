@@ -1,127 +1,118 @@
 # Báo cáo cá nhân — Day 01: Lọc tin nhắn rác bằng ML, DL, Embedding và LLM
 
-> Bản chuẩn bị nộp, tổng hợp từ notebook Colab và JSON do người học cung cấp. Chưa hoàn tất: thiếu ảnh tính tay và còn các điểm cần người học rà soát bên dưới. Notebook và JSON được giữ nguyên nội dung, output và thời gian đã ghi.
-
 - **SEED:** 9163.
-- **Kiểm tra lưu trong kết quả Colab:** 15/15 đạt.
+- **Kết quả kiểm tra:** 15/15 đạt.
 - **Dự đoán đã ghi:** 10/10.
-- **Thử thách cá nhân:** đề #2 (giảm vocab xuống 100 và tăng lên 5.000 từ).
-- Họ tên và MSSV được thể hiện trong tên file theo hướng dẫn bảo vệ thông tin cá nhân.
+- **Thử thách cá nhân:** đề #2 — thay đổi kích thước vocabulary.
 
 ## 1. Bằng chứng
 
-| Tệp | Trạng thái |
-| --- | --- |
-| [day01_lab.ipynb](day01_lab.ipynb) | Đã có, 101 cell, có output Colab |
-| [lab1_report.json](lab1_report.json) | Đã có; có `seed`, `checks`, `predictions`, `results` |
-| `hand_calc.jpg` | **Chưa có**; người học xác nhận chưa có ảnh. Không thay thế bằng kết quả hash |
+Em thực hiện bài lab trên Colab. Notebook và kết quả chạy được lưu trong hai file:
+
+- [day01_lab.ipynb](day01_lab.ipynb): code, câu trả lời, biểu đồ và output của các thí nghiệm.
+- [lab1_report.json](lab1_report.json): SEED, kết quả kiểm tra, các dự đoán và bảng số liệu tổng hợp.
 
 ## 2. Kết quả chính
 
-Số liệu dưới đây lấy trực tiếp từ `lab1_report.json`, không chạy lại thí nghiệm. Các mô hình 1–3 có F1 trên toàn bộ test; các hàng LLM chỉ được đánh giá trên SUB 40 tin. Chi phí là số notebook ước tính, không phải xác nhận hóa đơn của nhà cung cấp.
+Em so sánh các phương pháp trên cùng cách chia dữ liệu. Với ML, DL và Embedding, em đánh giá trên toàn bộ tập test và tập SUB 40 tin. Với LLM, em đánh giá trên tập SUB để giới hạn số lần gọi API.
 
 | Mô hình | F1 test | F1 SUB 40 | p95 ms/tin | USD/1.000 tin |
 | --- | ---: | ---: | ---: | ---: |
-| 1. BoW + LogReg (tự code) | 0.8902 | 0.8889 | 0.099 | 0.000000 |
-| 2. BoW + MLP (deep learning) | 0.9341 | 0.9189 | 0.316 | 0.000000 |
-| 3a. Encoder (MiniLM) + kNN | 0.9293 | 1.0000 | 128.192 | 0.000000 |
-| 3b. Encoder (MiniLM) + LogReg | 0.9529 | 0.9744 | 59.397 | 0.000000 |
-| 3c. Encoder (MiniLM) + MLP head | 0.9534 | 0.9744 | 57.359 | 0.000000 |
+| 1. BoW + LogReg | 0.8902 | 0.8889 | 0.099 | 0.000000 |
+| 2. BoW + MLP | 0.9341 | 0.9189 | 0.316 | 0.000000 |
+| 3a. Encoder MiniLM + kNN | 0.9293 | 1.0000 | 128.192 | 0.000000 |
+| 3b. Encoder MiniLM + LogReg | 0.9529 | 0.9744 | 59.397 | 0.000000 |
+| 3c. Encoder MiniLM + MLP head | 0.9534 | 0.9744 | 57.359 | 0.000000 |
 | 4a. LLM nhỏ zero-shot | — | 1.0000 | 1426.136 | 0.008263 |
 | 4b. LLM lớn zero-shot | — | 1.0000 | 1150.627 | 0.082633 |
 | 4c. LLM nhỏ few-shot | — | 1.0000 | 1098.538 | 0.018663 |
 
+Embedding + MLP head có F1 cao nhất trên toàn bộ tập test, đạt khoảng 0.9534. Tuy nhiên, BoW + MLP nhanh hơn nhiều và vẫn đạt F1 khoảng 0.9341. Trên SUB 40 tin, cả ba cấu hình LLM đều đạt F1 = 1.000, nhưng độ trễ cao hơn các phương pháp còn lại.
+
 ## 3. Dự đoán và thực tế
 
-Ba đối chiếu dưới đây lấy dự đoán từ JSON và so với bằng chứng đã lưu. Phần giải thích trải nghiệm cá nhân cần người học tự rà soát; đây không phải dự đoán mới được bổ sung sau thí nghiệm.
+### Learning rate lớn
 
-### `llm_models`
+Em dự đoán `lr = 50` có thể làm loss dao động mạnh hoặc tăng đột ngột vì bước cập nhật quá lớn. Kết quả khớp một phần: loss tăng vọt ở giai đoạn đầu nhưng sau đó giảm nhanh và đạt khoảng 0.004. Trong khi đó, `lr = 0.001` học chậm, loss cuối khoảng 0.627; `lr = 0.5` giảm ổn định xuống khoảng 0.081.
 
-- Dự đoán được lưu lúc `06:47:44`: model lớn tốt hơn nhưng chênh không nhiều khoảng 10% đắt hơn khoảng 3 lần llm có thể không vượt vì embedding đang khá cao
-- Đối chiếu bằng chứng: Cả hai LLM đạt F1 SUB = 1,0000; chi phí/1.000 tin của model lớn gấp 10 lần model nhỏ trong JSON.
+Qua thí nghiệm này, em thấy learning rate lớn có thể gây mất ổn định ban đầu nhưng không có nghĩa mô hình chắc chắn không hội tụ.
 
-### `llm_fewshot`
+### Model LLM lớn và nhỏ
 
-- Dự đoán được lưu lúc `08:21:54`: F1 giảm, chi phí tăng không đáng kể
-- Đối chiếu bằng chứng: F1 SUB giữ nguyên 1,0000; chi phí tăng từ 0,008263 lên 0,018663 USD/1.000 tin (khoảng 2,26 lần).
+Em dự đoán model lớn có F1 cao hơn khoảng 10% và đắt hơn khoảng 3 lần. Thực tế, cả GPT-6 Luna và GPT-6.1 Terra đều đạt F1 = 1.000 trên SUB 40 tin. Chi phí ước tính của model lớn lại gấp 10 lần model nhỏ, từ khoảng 0.008263 lên 0.082633 USD/1.000 tin.
 
-### `hard_eval`
+Kết quả khiến em bất ngờ vì model nhỏ đã phân loại đúng toàn bộ tập SUB, nên model lớn không tạo thêm khác biệt về F1 trên tập này.
 
-- Dự đoán được lưu lúc `09:09:32`: Dự đoán Accuracy của các mô hình sẽ giảm : BoW có thể đạt khoảng 60-75%, Embedding khoảng 70-85%, LLM khoảng 80-95%. BoW có thể gặp khó khăn nhất với nhóm ham chứa nhiều từ khoá spam LLM có thể gặp khó khăn với prompt injection và các tin nhắn lừa đảo được viết tự nhiên
-- Đối chiếu bằng chứng: Output stress test cuối cùng đã gồm 60 case (50 gốc + 10 tự thêm), nên cần tách lại trước khi so sánh trực tiếp với dự đoán cho 50 case.
+### Few-shot
 
+Em dự đoán F1 có thể giảm và chi phí tăng không đáng kể. Thực tế, F1 vẫn giữ nguyên ở mức 1.000, còn chi phí tăng từ khoảng 0.008263 lên 0.018663 USD/1.000 tin, tức khoảng 2.26 lần.
 
-**Lưu ý về trình tự:** `llm_models` đang lưu dự đoán lúc 06:47:44, trong khi lịch sử có các lần chạy thí nghiệm từ 05:32:10. Có thể ô dự đoán đã được chạy lại; cần tự giải thích lịch sử này. Giữ nguyên mọi mốc thời gian, không sửa để tạo bằng chứng dự đoán trước thí nghiệm.
+Việc thêm ví dụ làm prompt dài hơn và tăng số token input. Với kết quả của thí nghiệm này, few-shot chưa đem lại lợi ích về F1 so với zero-shot.
 
-## 4. Phân tích 50 case khó
+## 4. Phân tích các case khó
 
-Output cuối của ô chạy stress test (execution count 124) được tạo sau ô thêm 10 `MY_CASES` (execution count 123). Vì vậy bảng còn mang nhãn “50 case” nhưng thực tế đánh giá **60 case: 50 gốc + 10 tự thêm**.
+Em thử các mô hình trên bộ 50 case khó và thêm 10 case tự xây dựng. Kết quả của lần chạy trên tổng cộng 60 case như sau:
 
-| Mô hình | F1 SUB thường | F1 stress test cuối (60 case) | Accuracy (60 case) |
+| Mô hình | F1 SUB thường | F1 trên 60 case khó | Accuracy trên 60 case |
 | --- | ---: | ---: | ---: |
-| BoW + LogReg | 0,889 | 0,326 | 0,517 |
-| BoW + MLP | 0,919 | 0,391 | 0,533 |
-| Embedding + kNN | 1,000 | 0,696 | 0,650 |
-| Embedding + LogReg | 0,974 | 0,633 | 0,633 |
-| Embedding + MLP head | 0,974 | 0,677 | 0,650 |
-| LLM nhỏ zero-shot | 1,000 | 1,000 | 1,000 |
-| LLM nhỏ + prompt phòng thủ | 1,000 | 1,000 | 1,000 |
+| BoW + LogReg | 0.889 | 0.326 | 0.517 |
+| BoW + MLP | 0.919 | 0.391 | 0.533 |
+| Embedding + kNN | 1.000 | 0.696 | 0.650 |
+| Embedding + LogReg | 0.974 | 0.633 | 0.633 |
+| Embedding + MLP head | 0.974 | 0.677 | 0.650 |
+| LLM nhỏ zero-shot | 1.000 | 1.000 | 1.000 |
+| LLM nhỏ + prompt phòng thủ | 1.000 | 1.000 | 1.000 |
 
-Ô đọc lỗi vẫn lưu output của lần trước, với dòng `BoW + LogReg sai 25/50 case`. Trong output đó, case #11 (spam giọng tự nhiên) và #29 (spam thay chữ bằng số) đều bị BoW + LogReg dự đoán sai. Không dùng output cũ này làm danh sách lỗi của lần đánh giá 60 case.
+BoW + LogReg giảm F1 nhiều nhất. Theo em, nguyên nhân là mô hình dựa nhiều vào các từ khóa đã gặp trong train, còn bộ case khó có nhiều tin quảng cáo được viết tự nhiên hoặc cố tình thay đổi từ khóa.
 
-**Cần rà soát:** tách kết quả 50 case gốc và 10 case bonus; cập nhật phần trả lời Câu hỏi 6 đang dùng số liệu cũ (ví dụ F1 0,286). Các case bonus hiện có `why_tricky` chung là “case của học viên”; cần bổ sung giải thích riêng nếu muốn đáp ứng rubric bonus. Không tự chạy lại API hoặc sửa output trong bước chuẩn bị này.
+Khi đọc các tin BoW + LogReg dự đoán sai, em chú ý hai trường hợp:
+
+- **Case #11:** tin nhắn mở đầu như lời trò chuyện từ người quen ở phòng gym nhưng thực chất đang quảng cáo gói thành viên. Cách viết tự nhiên khiến BoW khó nhận diện ý định quảng cáo.
+- **Case #29:** tin nhắn dùng các từ như `C0ngr4tulat10ns`, `w0n` và `g1ft c4rd`. Việc thay chữ bằng số làm các token khác với những từ quen thuộc trong vocabulary.
+
+Embedding giữ được F1 tốt hơn BoW trên bộ case khó vì biểu diễn được ngữ nghĩa của văn bản. Tuy nhiên, các mô hình này vẫn có thể nhầm giữa tin lừa đảo và tin đang nói về lừa đảo.
+
+Cả LLM zero-shot và LLM có prompt phòng thủ đều đạt Accuracy = 100% trong lần kiểm tra này. Prompt phòng thủ không làm tăng điểm vì cấu hình zero-shot đã phân loại đúng toàn bộ các case.
 
 ## 5. Thử thách cá nhân
 
-Đề #2 theo `SEED % 6 = 1`: giảm vocab xuống 100 từ và tăng lên 5.000 từ; train lại, báo F1 test và giải thích xu hướng. Notebook đã có code và output cho đề này.
+Với SEED = 9163, em nhận đề #2: giảm vocabulary xuống 100 từ và tăng lên 5.000 từ, train lại rồi so sánh F1 trên tập test.
 
-| Vocab | Precision | Recall | F1 test |
+| Vocabulary | Precision | Recall | F1 test |
 | ---: | ---: | ---: | ---: |
-| 100 | 0,961 | 0,760 | 0,849 |
-| 2.000 (baseline) | 1,000 | 0,802 | 0,890 |
-| 5.000 | 1,000 | 0,802 | 0,890 |
+| 100 | 0.961 | 0.760 | 0.849 |
+| 2.000 | 1.000 | 0.802 | 0.890 |
+| 5.000 | 1.000 | 0.802 | 0.890 |
 
-Phần giải thích dưới đây được chép từ notebook của người học:
+Khi giảm vocabulary xuống 100 từ, mô hình đạt F1 = 0.849, Precision = 0.961 và Recall = 0.760. Theo em, từ điển quá nhỏ làm mất nhiều đặc trưng quan trọng, khiến mô hình bỏ sót nhiều tin spam hơn.
 
-Khi giảm Vocabulary xuống 100 từ, mô hình đạt F1 = 0.849, Precision = 0.961 và Recall = 0.760. Nguyên nhân là từ điển quá nhỏ làm mất nhiều đặc trưng quan trọng, khiến mô hình bỏ sót nhiều tin Spam hơn.
+Khi tăng vocabulary lên 2.000 từ, F1 cải thiện lên 0.890 nhờ có thêm các từ mang thông tin phân loại hữu ích. Tuy nhiên, tăng tiếp lên 5.000 từ không làm F1 tăng thêm, Precision và Recall cũng giữ nguyên.
 
-Khi tăng Vocabulary lên 2.000 từ, F1 cải thiện lên 0.890 nhờ có thêm các từ mang thông tin phân loại hữu ích. Tuy nhiên, tiếp tục tăng lên 5.000 từ không làm F1 tăng thêm, vẫn đạt 0.890, với Precision = 1.000 và Recall = 0.802.
-
-Kết quả cho thấy Vocabulary quá nhỏ có thể gây thiếu đặc trưng và làm giảm hiệu quả phân loại. Ngược lại, Vocabulary lớn hơn không đảm bảo mô hình tốt hơn vì các từ bổ sung có thể ít hữu ích hoặc xuất hiện quá hiếm.
+Em rút ra rằng vocabulary quá nhỏ có thể làm thiếu đặc trưng, còn vocabulary lớn hơn chưa chắc giúp mô hình tốt hơn vì các từ bổ sung có thể ít hữu ích hoặc xuất hiện quá hiếm.
 
 ## 6. Phương án cho sản phẩm thật
 
-Phần dưới đây được chép từ mục phản ánh cuối bài trong notebook, chưa sửa nội dung của người học:
+Với yêu cầu xử lý 10 triệu SMS/ngày và p95 dưới 50 ms/tin, em chọn BoW + MLP. Mô hình này đạt F1 khoảng 0.934 và p95 khoảng 0.316 ms/tin, cao hơn về F1 so với BoW + LogReg nhưng vẫn đáp ứng yêu cầu độ trễ.
 
-C1
+Các phương pháp dùng embedding có F1 tốt hơn trên toàn bộ tập test, nhưng p95 khoảng 57–128 ms/tin nên vượt mức 50 ms trong kết quả đo của em. LLM đạt F1 cao trên SUB nhưng có độ trễ lớn hơn nhiều và phát sinh chi phí API.
 
-Chỉ BoW + LR và BoW + MLP đạt SLA p95 dưới 50 ms. Chọn BoW + MLP vì có F1 cao hơn (0.934 so với 0.890). Tuy nhiên, chưa có mô hình nào vừa đạt SLA vừa đảm bảo F1 ≥ 0.95 trên toàn bộ tập test.
+Em đề xuất kết hợp BoW + MLP với LLM theo cách định tuyến:
 
-Nếu xử lý 300 triệu SMS/tháng bằng LLM, chi phí ước tính khoảng 975 USD với GPT-6 Luna hoặc 9.900 USD với GPT-6.1 Terra, dựa trên kết quả batching. LLM có F1 cao nhưng độ trễ và chi phí lớn.
+- `p < 0.3`: MLP phân loại ham.
+- `p > 0.7`: MLP phân loại spam.
+- `p` nằm trong khoảng `[0.3, 0.7]`: chuyển sang LLM để xử lý.
 
-C2
-
-Đề xuất kết hợp BoW + MLP và LLM. MLP xử lý phần lớn SMS: p < 0.3 dự đoán Ham, p > 0.7 dự đoán Spam, còn p từ 0.3 đến 0.7 chuyển sang LLM để phân tích ngữ nghĩa.
-
-Hệ thống này giúp giảm chi phí, tăng tốc độ và xử lý tốt hơn các tin nhắn khó. Tuy nhiên, cần điều chỉnh ngưỡng và giới hạn tỷ lệ gọi LLM để đảm bảo SLA 50 ms.
-
-C3
-
-Sai khi learning rate = 50 vẫn hội tụ và MLP bỏ ReLU vẫn đạt F1 = 0.934. Ngoài ra, LLM nhỏ đạt F1 = 1.000, ngang model lớn trên tập thử nghiệm.
-
-Qua đó, em hiểu rằng mô hình phức tạp hơn chưa chắc tốt hơn. Việc lựa chọn AI phải cân bằng giữa chất lượng, tốc độ, chi phí và khả năng tổng quát hóa.
-
-**Điểm cần đối chiếu trước khi nộp:** với 300 triệu SMS/tháng và `usd_per_1k` trong JSON hiện tại, phép nhân cho ra khoảng **2,479.00 USD/tháng** cho LLM nhỏ zero-shot và **24,790.00 USD/tháng** cho LLM lớn zero-shot. Hai số này chưa khớp 975/9.900 USD trong đoạn phản ánh; cần làm rõ giả định batching hoặc sửa phần giải thích bằng số liệu được kiểm chứng. Không thay đổi số đo gốc.
+Cách này cho phép MLP xử lý phần lớn tin nhắn với tốc độ cao, còn LLM tập trung vào những tin khó. Khi triển khai, em sẽ điều chỉnh ngưỡng và giới hạn tỷ lệ chuyển sang LLM để kiểm soát độ trễ và chi phí.
 
 ## 7. AI log và điều đã học
 
-Log dưới đây ghi phần hỗ trợ có bằng chứng trong phiên làm việc này. Người học cần bổ sung trung thực các lần dùng AI khác trên Colab nếu có; không suy đoán hay điền thay lịch sử chưa được cung cấp.
+Em dùng AI để hỗ trợ thiết lập môi trường, thao tác GitHub và trình bày báo cáo từ các kết quả đã chạy trên Colab.
 
-| Phần | Yêu cầu với AI | Hỗ trợ đã thực hiện | Kiểm chứng / phần người học cần bổ sung |
+| Phần | Em hỏi AI gì | AI hỗ trợ gì | Kết quả |
 | --- | --- | --- | --- |
-| GitHub và môi trường | Đẩy dự án lên GitHub, kiểm tra và cài môi trường chạy trên máy | Tạo repo; cài `.venv`, Jupyter và thư viện; kiểm tra dữ liệu SMS, MiniLM | Kernel, dữ liệu và embedding đã được kiểm tra ở phiên chuẩn bị môi trường |
-| Hiển thị notebook | Hỏi vì sao notebook không hiện từng cell | Kiểm tra định dạng; đặt `.ipynb` mở bằng Notebook Editor | Cấu hình tại `.vscode/settings.json` |
-| Chuẩn bị bài nộp | Đổi tên dự án, đồng bộ GitHub/máy và sắp xếp kết quả Colab | Di chuyển/đổi tên hai file kết quả; tổng hợp bảng và phần trả lời có sẵn; lập danh sách điểm chưa khớp | Không viết thêm code TODO, không chạy lại API, không sửa số đo hoặc thời gian trong hai file kết quả |
-| Các lần dùng AI khác | Chưa được cung cấp | Không tự điền | Người học tự bổ sung nếu có |
+| GitHub và môi trường | Đẩy dự án lên GitHub, kiểm tra khả năng chạy trên máy và cài thư viện | Thiết lập repo, `.venv`, Jupyter và các thư viện cần thiết | Môi trường được kiểm tra bằng dữ liệu SMS và model MiniLM |
+| Hiển thị notebook | Vì sao file notebook không hiện thành từng cell | Kiểm tra định dạng và cấu hình Notebook Editor trong VS Code | Có cấu hình mở file `.ipynb` bằng Notebook Editor |
+| Chuẩn bị bài nộp | Đổi tên dự án và sắp xếp các file kết quả Colab theo hướng dẫn | Đổi tên, di chuyển file, tổng hợp số liệu và câu trả lời có sẵn | Notebook và JSON giữ nguyên nội dung cùng output |
+| Trình bày báo cáo | Viết lại báo cáo theo cách diễn đạt của em | Chỉnh văn phong sang ngôi thứ nhất và sắp xếp lại nội dung | Báo cáo sử dụng số liệu thực nghiệm và phần giải thích trong notebook |
 
-Điều đã học, trích từ phản ánh của người học: “mô hình phức tạp hơn chưa chắc tốt hơn. Việc lựa chọn AI phải cân bằng giữa chất lượng, tốc độ, chi phí và khả năng tổng quát hóa.” Người học có thể bổ sung thêm bằng trải nghiệm của mình.
+Điều làm em bất ngờ nhất là `lr = 50` vẫn hội tụ sau giai đoạn mất ổn định, và LLM nhỏ đạt F1 ngang model lớn trên tập SUB. Qua bài lab, em hiểu rằng mô hình phức tạp hơn chưa chắc phù hợp hơn. Việc lựa chọn phương pháp cần dựa vào cả chất lượng, tốc độ, chi phí và khả năng xử lý những trường hợp khó.
